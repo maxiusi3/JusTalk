@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./page.module.css";
 import ChapterNode from "@/components/map/ChapterNode";
 import { User } from "lucide-react";
@@ -16,8 +16,9 @@ interface Chapter {
     position_y: number;
 }
 
-export default function LearningMapPage() {
+function MapContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
@@ -49,7 +50,6 @@ export default function LearningMapPage() {
 
     // Handle completion from Chat Page
     useEffect(() => {
-        const searchParams = new URLSearchParams(window.location.search);
         if (searchParams.get('completed') === 'true') {
             // Update Chapter 1 to completed with 2 stars (Booked state)
             setChapters(prev => prev.map(ch =>
@@ -64,7 +64,7 @@ export default function LearningMapPage() {
             // Clean up URL
             router.replace('/dashboard/map');
         }
-    }, [router]);
+    }, [searchParams, router]);
 
     const handleChapterClick = (chapterId: string) => {
         router.push(`/learn/${chapterId}/trailer`);
@@ -75,6 +75,35 @@ export default function LearningMapPage() {
     }
 
     return (
+        <div className={styles.mapContainer}>
+            {/* Path SVG Line */}
+            <svg className={styles.pathSvg} viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path
+                    d="M50,80 C50,70 30,70 30,60 C30,50 70,50 70,40 C70,30 50,30 50,20"
+                    fill="none"
+                    stroke="var(--border)"
+                    strokeWidth="2"
+                    strokeDasharray="4 4"
+                />
+            </svg>
+
+            {chapters.map((chapter) => (
+                <ChapterNode
+                    key={chapter.id}
+                    id={chapter.id}
+                    title={chapter.title}
+                    status={chapter.status}
+                    stars={chapter.stars}
+                    position={{ x: chapter.position_x, y: chapter.position_y }}
+                    onClick={() => handleChapterClick(chapter.id)}
+                />
+            ))}
+        </div>
+    );
+}
+
+export default function LearningMapPage() {
+    return (
         <main className={styles.container}>
             <header className={styles.header}>
                 <div className={styles.streak}>🔥 3 Day Streak</div>
@@ -82,31 +111,9 @@ export default function LearningMapPage() {
                     <User size={20} />
                 </div>
             </header>
-
-            <div className={styles.mapContainer}>
-                {/* Path SVG Line */}
-                <svg className={styles.pathSvg} viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <path
-                        d="M50,80 C50,70 30,70 30,60 C30,50 70,50 70,40 C70,30 50,30 50,20"
-                        fill="none"
-                        stroke="var(--border)"
-                        strokeWidth="2"
-                        strokeDasharray="4 4"
-                    />
-                </svg>
-
-                {chapters.map((chapter) => (
-                    <ChapterNode
-                        key={chapter.id}
-                        id={chapter.id}
-                        title={chapter.title}
-                        status={chapter.status}
-                        stars={chapter.stars}
-                        position={{ x: chapter.position_x, y: chapter.position_y }}
-                        onClick={() => handleChapterClick(chapter.id)}
-                    />
-                ))}
-            </div>
+            <Suspense fallback={<div>Loading...</div>}>
+                <MapContent />
+            </Suspense>
         </main>
     );
 }

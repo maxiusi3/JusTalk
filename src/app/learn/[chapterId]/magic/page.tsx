@@ -24,6 +24,12 @@ export default function MagicMomentPage({ params }: { params: { chapterId: strin
         router.push(`/learn/${params.chapterId}/chat`);
     };
 
+    // Fallback: Show continue button after 10s if video fails or is skipped
+    const handleSkip = () => {
+        setVideoEnded(true);
+        setShowCelebration(true);
+    };
+
     return (
         <main className={styles.container}>
             {!showCelebration ? (
@@ -34,12 +40,17 @@ export default function MagicMomentPage({ params }: { params: { chapterId: strin
                         className={styles.player}
                         onEnded={handleVideoEnd}
                     />
-                    {!videoEnded && (
-                        <div className={styles.theaterHint}>
-                            <Sparkles size={16} className={styles.sparkleIcon} />
-                            Magic Moment: No Subtitles
-                        </div>
-                    )}
+                    <div className={styles.controlsOverlay}>
+                        {!videoEnded && (
+                            <div className={styles.theaterHint}>
+                                <Sparkles size={16} className={styles.sparkleIcon} />
+                                Magic Moment: No Subtitles
+                            </div>
+                        )}
+                        <button className={styles.skipButton} onClick={handleSkip}>
+                            Skip <ArrowRight size={16} />
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div className={styles.celebration}>

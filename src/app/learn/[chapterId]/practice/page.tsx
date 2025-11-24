@@ -115,8 +115,19 @@ export default function PracticePage({ params }: { params: { chapterId: string }
     const handleRecording = (blob: Blob) => {
         // Simulate API analysis
         setTimeout(() => {
-            // Mock score: 85-100 for testing success
-            const mockScore = 85 + Math.random() * 15;
+            // Mock score based on recording duration (simulated)
+            // In a real app, we'd analyze the blob.
+            // Here, we assume if the user tried (long recording), they pass.
+            // If it's too short (< 1s), they fail.
+
+            // Note: Since we can't easily get duration from blob without decoding,
+            // we'll use a random score but weighted towards success for better UX in prototype.
+            // 80% chance of passing (>85), 20% chance of failure (<60)
+            const isSuccess = Math.random() > 0.2;
+            const mockScore = isSuccess
+                ? 85 + Math.random() * 15  // 85-100
+                : 40 + Math.random() * 20; // 40-60
+
             setScore(mockScore);
 
             if (mockScore >= 85) {
