@@ -1,0 +1,172 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background-color: var(--background);
+    color: var(--foreground);
+}
+
+.progress {
+    margin-bottom: 2rem;
+    color: #a1a1aa;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.audioSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+}
+
+.audioButton {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+}
+
+.audioButton:hover {
+    transform: scale(1.05);
+}
+
+.audioButton:active {
+    transform: scale(0.95);
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.option {
+    padding: 1.2rem;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: transparent;
+    color: var(--foreground);
+    font-size: 1.1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.option:hover {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.selected {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.nextButton {
+    background: var(--foreground);
+    color: var(--background);
+    border: none;
+    padding: 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.nextButton:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Result Card Styles */
+.resultCard {
+    text-align: center;
+    max-width: 400px;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.successIcon {
+    color: var(--success);
+    margin-bottom: 1.5rem;
+}
+
+.resultCard h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.levelBadge {
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin: 1rem 0;
+    text-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+}
+
+.levelDesc {
+    color: #a1a1aa;
+    margin-bottom: 2rem;
+}
+
+.button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 100px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    transition: all 0.2s;
+}
+
+.button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

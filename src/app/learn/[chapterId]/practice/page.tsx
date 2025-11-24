@@ -1,0 +1,177 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import styles from "./page.module.css";
+import VideoPlayer from "@/components/player/VideoPlayer";
+import GuessingGame from "@/components/interaction/GuessingGame";
+import AudioRecorder from "@/components/interaction/AudioRecorder";
+import { Check, X } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+
+interface Option {
+    id: string;
+    text: string;
+    isCorrect: boolean;
+}
+
+interface UnitData {
+    id: string;
+    videoSrc: string;
+    correctText: string;
+    options: Option[];
+}
+
+type Phase = "guessing" | "echo" | "feedback";
+
+export default function PracticePage({ params }: { params: { chapterId: string } }) {
+    const router = useRouter();
+    const [phase, setPhase] = useState<Phase>("guessing");
+    const [attempts, setAttempts] = useState(0);
+    const [feedback, setFeedback] = useState<"success" | "error" | null>(null);
+    const [score, setScore] = useState(0);
+    const [unitData, setUnitData] = useState<UnitData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const supabase = createClient();
+
+    useEffect(() => {
+        async function fetchUnit() {
+            // For MVP, we just fetch the first unit of the chapter
+            const { data: units, error: unitError } = await supabase
+                .from('units')
+                .select('*')
+                .eq('chapter_id', params.chapterId)
+                .limit(1);
+
+            if (unitError || !units || units.length === 0) {
+                console.error('Error fetching unit:', unitError);
+                // Fallback Mock Data
+                setUnitData({
+                    id: "u1",
+                    videoSrc: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                    correctText: "We need to talk.",
+                    options: [
+                        { id: "1", text: "He wants to break up", isCorrect: true },
+                        { id: "2", text: "He wants to order food", isCorrect: false },
+                        { id: "3", text: "He is happy", isCorrect: false },
+                    ]
+                });
+                setLoading(false);
+                return;
+            }
+
+            const unit = units[0];
+
+            // Fetch options for this unit
+            const { data: options, error: optionsError } = await supabase
+                .from('options')
+                .select('*')
+                .eq('unit_id', unit.id);
+
+            if (optionsError) {
+                console.error('Error fetching options:', optionsError);
+                setLoading(false);
+                return;
+            }
+
+            setUnitData({
+                id: unit.id,
+                videoSrc: unit.video_src,
+                correctText: unit.correct_text,
+                options: options.map((opt: any) => ({
+                    id: opt.id,
+                    text: opt.text,
+                    isCorrect: opt.is_correct
+                }))
+            });
+            setLoading(false);
+        }
+
+        fetchUnit();
+    }, [params.chapterId]);
+
+    const handleGuess = (isCorrect: boolean) => {
+        if (isCorrect) {
+            setFeedback("success");
+            setTimeout(() => {
+                setFeedback(null);
+                setPhase("echo");
+            }, 1000);
+        } else {
+            setFeedback("error");
+            setAttempts(prev => prev + 1);
+            setTimeout(() => setFeedback(null), 1000);
+        }
+    };
+
+    const handleRecording = (blob: Blob) => {
+        // Simulate API analysis
+        setTimeout(() => {
+            const mockScore = Math.random() * 100;
+            setScore(mockScore);
+
+            if (mockScore >= 85) {
+                setFeedback("success");
+                setTimeout(() => {
+                    // Move to next unit or finish
+                    // For MVP, just go to Magic Moment
+                    router.push(`/learn/${params.chapterId}/magic`);
+                }, 1500);
+            } else {
+                setFeedback("error");
+                // Logic for retry or rescue mode would go here
+            }
+        }, 1500);
+    };
+
+    if (loading || !unitData) {
+        return <div className={styles.container}><div className="flex-center full-screen">Loading practice...</div></div>;
+    }
+
+    return (
+        <main className={styles.container}>
+            {/* Top Video Section */}
+            <div className={styles.videoSection}>
+                <VideoPlayer
+                    src={unitData.videoSrc}
+                    autoPlay
+                    loop
+                    className={styles.player}
+                />
+            </div>
+
+            {/* Bottom Interaction Section */}
+            <div className={styles.interactionSection}>
+                {/* Feedback Overlay */}
+                {feedback && (
+                    <div className={`${styles.feedbackOverlay} ${styles[feedback]}`}>
+                        {feedback === "success" ? <Check size={48} /> : <X size={48} />}
+                    </div>
+                )}
+
+                {phase === "guessing" && (
+                    <GuessingGame
+                        options={unitData.options}
+                        onSelect={handleGuess}
+                        isFocusMode={attempts >= 2}
+                    />
+                )}
+
+                {phase === "echo" && (
+                    <div className={styles.echoContainer}>
+                        <h2 className={styles.targetSentence}>"{unitData.correctText}"</h2>
+                        <div className={styles.recorderWrapper}>
+                            <AudioRecorder
+                                onRecordingComplete={handleRecording}
+                                isAnalyzing={!!feedback} // Disable while showing feedback
+                            />
+                        </div>
+                        {score > 0 && score < 85 && (
+                            <p className={styles.scoreFeedback}>Score: {Math.round(score)}. Try again!</p>
+                        )}
+                    </div>
+                )}
+            </div>
+        </main>
+    );
+}

@@ -1,0 +1,147 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background-color: var(--background);
+    color: var(--foreground);
+}
+
+.content {
+    max-width: 600px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.highlight {
+    color: var(--primary);
+    position: relative;
+    display: inline-block;
+}
+
+.highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background-color: rgba(99, 102, 241, 0.3);
+    z-index: -1;
+}
+
+.comparison {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.card {
+    flex: 1;
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.oldWay {
+    opacity: 0.6;
+    transform: scale(0.95);
+}
+
+.newWay {
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.3);
+    transform: scale(1.05);
+}
+
+.icon {
+    margin-bottom: 0.5rem;
+}
+
+.newWay .icon {
+    color: var(--primary);
+}
+
+.arrow {
+    color: var(--border);
+}
+
+.description {
+    text-align: center;
+    color: #a1a1aa;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 480px;
+}
+
+.button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 100px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .comparison {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .arrow {
+        transform: rotate(90deg);
+    }
+
+    .oldWay,
+    .newWay {
+        transform: none;
+        width: 100%;
+    }
+}

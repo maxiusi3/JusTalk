@@ -1,0 +1,112 @@
+.container {
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--foreground);
+}
+
+.header {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+}
+
+.backButton {
+    background: transparent;
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+}
+
+.section {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.section h3 {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: #a1a1aa;
+    letter-spacing: 0.05em;
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    cursor: pointer;
+}
+
+.menuIcon {
+    width: 32px;
+    height: 32px;
+    background: var(--surface);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: #a1a1aa;
+}
+
+.menuLabel {
+    flex: 1;
+    font-size: 1rem;
+}
+
+.toggle {
+    width: 48px;
+    height: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    background: #a1a1aa;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.active {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.active::after {
+    transform: translateX(20px);
+    background: white;
+}
+
+.logoutButton {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.logoutButton:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
