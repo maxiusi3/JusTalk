@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import styles from "./ChatInterface.module.css";
-import { Mic, Send, User, Bot } from "lucide-react";
+import { Mic, Send, User, Bot, Volume2, AlertCircle } from "lucide-react";
 
 interface Message {
     id: string;
@@ -20,6 +20,7 @@ interface ChatInterfaceProps {
 export default function ChatInterface({ initialMessages = [], onSendMessage, isTyping = false }: ChatInterfaceProps) {
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [inputValue, setInputValue] = useState("");
+    const [showToast, setShowToast] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -32,6 +33,12 @@ export default function ChatInterface({ initialMessages = [], onSendMessage, isT
 
     const handleSend = () => {
         if (inputValue.trim()) {
+            // Check for off-topic reply (Mock logic: if message is too short)
+            if (inputValue.length < 3) {
+                setShowToast(true);
+                setTimeout(() => setShowToast(false), 3000);
+                return;
+            }
             onSendMessage(inputValue);
             setInputValue("");
         }
@@ -44,8 +51,20 @@ export default function ChatInterface({ initialMessages = [], onSendMessage, isT
         }
     };
 
+    const playHint = (text: string) => {
+        // Mock TTS
+        alert(`Playing audio for: ${text}`);
+    };
+
     return (
         <div className={styles.container}>
+            {showToast && (
+                <div className={styles.toast}>
+                    <AlertCircle size={16} />
+                    <span>Try using the word "Table"</span>
+                </div>
+            )}
+
             <div className={styles.messagesList}>
                 {messages.map((msg) => (
                     <div key={msg.id} className={`${styles.messageWrapper} ${msg.role === "user" ? styles.userWrapper : styles.aiWrapper}`}>
@@ -72,9 +91,12 @@ export default function ChatInterface({ initialMessages = [], onSendMessage, isT
 
             <div className={styles.inputArea}>
                 <div className={styles.hints}>
-                    <span className={styles.hintTag}>Yes</span>
-                    <span className={styles.hintTag}>Table</span>
-                    <span className={styles.hintTag}>Morning</span>
+                    {["Yes", "Table", "Morning"].map((hint) => (
+                        <button key={hint} className={styles.hintTag} onClick={() => playHint(hint)}>
+                            <Volume2 size={12} className={styles.hintIcon} />
+                            {hint}
+                        </button>
+                    ))}
                 </div>
                 <div className={styles.inputWrapper}>
                     <input

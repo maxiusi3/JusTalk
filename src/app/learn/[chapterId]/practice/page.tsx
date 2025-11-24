@@ -6,6 +6,7 @@ import styles from "./page.module.css";
 import VideoPlayer from "@/components/player/VideoPlayer";
 import GuessingGame from "@/components/interaction/GuessingGame";
 import AudioRecorder from "@/components/interaction/AudioRecorder";
+import RescueModal from "@/components/rescue/RescueModal";
 import { Check, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -32,6 +33,7 @@ export default function PracticePage({ params }: { params: { chapterId: string }
     const [score, setScore] = useState(0);
     const [unitData, setUnitData] = useState<UnitData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [showRescue, setShowRescue] = useState(false);
     const supabase = createClient();
 
     useEffect(() => {
@@ -99,15 +101,22 @@ export default function PracticePage({ params }: { params: { chapterId: string }
             }, 1000);
         } else {
             setFeedback("error");
-            setAttempts(prev => prev + 1);
-            setTimeout(() => setFeedback(null), 1000);
+            const newAttempts = attempts + 1;
+            setAttempts(newAttempts);
+
+            if (newAttempts >= 3) {
+                setTimeout(() => setShowRescue(true), 1000);
+            } else {
+                setTimeout(() => setFeedback(null), 1000);
+            }
         }
     };
 
     const handleRecording = (blob: Blob) => {
         // Simulate API analysis
         setTimeout(() => {
-            const mockScore = Math.random() * 100;
+            // Mock score: 85-100 for testing success
+            const mockScore = 85 + Math.random() * 15;
             setScore(mockScore);
 
             if (mockScore >= 85) {
@@ -122,6 +131,19 @@ export default function PracticePage({ params }: { params: { chapterId: string }
                 // Logic for retry or rescue mode would go here
             }
         }, 1500);
+    };
+
+    const handleRescueClose = () => {
+        setShowRescue(false);
+        setFeedback(null);
+    };
+
+    const handleWatchClip = () => {
+        // For MVP, just close modal and maybe show a hint or different video
+        // Ideally this would open a ClipPlayer overlay
+        alert("Playing reinforcement clip... (Mock)");
+        setShowRescue(false);
+        setFeedback(null);
     };
 
     if (loading || !unitData) {
@@ -172,6 +194,13 @@ export default function PracticePage({ params }: { params: { chapterId: string }
                     </div>
                 )}
             </div>
+
+            <RescueModal
+                isOpen={showRescue}
+                onClose={handleRescueClose}
+                onWatchClip={handleWatchClip}
+                coachMessage="It seems like you're having trouble with the context. Notice how the character looks away when they speak? That usually indicates hesitation."
+            />
         </main>
     );
 }

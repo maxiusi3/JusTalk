@@ -29,14 +29,21 @@ export default function ChapterNode({ id, title, status, stars = 0, position, on
                 <span className={styles.title}>{title}</span>
                 {status === "completed" && (
                     <div className={styles.stars}>
-                        {[1, 2, 3].map((i) => (
-                            <Star
-                                key={i}
-                                size={12}
-                                fill={i <= stars ? "var(--gold)" : "none"}
-                                color={i <= stars ? "var(--gold)" : "var(--border)"}
-                            />
-                        ))}
+                        {[1, 2, 3].map((i) => {
+                            // Logic for "Booked" star (3rd star)
+                            // If user has 2 stars, the 3rd one is "booked" (pre-ordered)
+                            const isBooked = i === 3 && stars === 2;
+
+                            return (
+                                <Star
+                                    key={i}
+                                    size={12}
+                                    fill={i <= stars ? "var(--gold)" : "none"}
+                                    color={i <= stars ? "var(--gold)" : (isBooked ? "var(--primary)" : "var(--border)")}
+                                    className={isBooked ? styles.bookedStar : undefined}
+                                />
+                            );
+                        })}
                     </div>
                 )}
             </div>

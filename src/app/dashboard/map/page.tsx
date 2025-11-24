@@ -47,6 +47,25 @@ export default function LearningMapPage() {
         fetchChapters();
     }, []);
 
+    // Handle completion from Chat Page
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.get('completed') === 'true') {
+            // Update Chapter 1 to completed with 2 stars (Booked state)
+            setChapters(prev => prev.map(ch =>
+                ch.id === '1' ? { ...ch, status: 'completed', stars: 2 } : ch
+            ));
+
+            // Also unlock Chapter 2
+            setChapters(prev => prev.map(ch =>
+                ch.id === '2' ? { ...ch, status: 'unlocked' } : ch
+            ));
+
+            // Clean up URL
+            router.replace('/dashboard/map');
+        }
+    }, [router]);
+
     const handleChapterClick = (chapterId: string) => {
         router.push(`/learn/${chapterId}/trailer`);
     };
