@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import VideoPlayer from "@/components/player/VideoPlayer";
+import VideoPlayer, { VideoPlayerRef } from "@/components/player/VideoPlayer";
 import GuessingGame from "@/components/interaction/GuessingGame";
 import AudioRecorder from "@/components/interaction/AudioRecorder";
 import RescueModal from "@/components/rescue/RescueModal";
@@ -34,6 +34,7 @@ export default function PracticePage({ params }: { params: { chapterId: string }
     const [unitData, setUnitData] = useState<UnitData | null>(null);
     const [loading, setLoading] = useState(true);
     const [showRescue, setShowRescue] = useState(false);
+    const videoRef = useRef<VideoPlayerRef>(null);
     const supabase = createClient();
 
     useEffect(() => {
@@ -98,7 +99,9 @@ export default function PracticePage({ params }: { params: { chapterId: string }
             setTimeout(() => {
                 setFeedback(null);
                 setPhase("echo");
-            }, 1000);
+                // Pause video when entering echo phase (user will speak)
+                videoRef.current?.pause();
+            }, 1500);
         } else {
             setFeedback("error");
             const newAttempts = attempts + 1;
@@ -115,18 +118,14 @@ export default function PracticePage({ params }: { params: { chapterId: string }
     const handleRecording = (blob: Blob) => {
         // Simulate API analysis
         setTimeout(() => {
-            // Mock score based on recording duration (simulated)
-            // In a real app, we'd analyze the blob.
-            // Here, we assume if the user tried (long recording), they pass.
-            // If it's too short (< 1s), they fail.
+            // Mock score logic for testing Rescue Mode:
+            // - Short recordings (< 500ms / < 500 bytes) = low score (40-60) to trigger Rescue
+            // - Normal recordings = high score (80-98) for success
 
-            // Note: Since we can't easily get duration from blob without decoding,
-            // we'll use a random score but weighted towards success for better UX in prototype.
-            // 80% chance of passing (>85), 20% chance of failure (<60)
-            const isSuccess = Math.random() > 0.2;
-            const mockScore = isSuccess
-                ? 85 + Math.random() * 15  // 85-100
-                : 40 + Math.random() * 20; // 40-60
+            const isShortRecording = blob.size < 5000; // Approximate check for short duration
+            const mockScore = isShortRecording
+                ? Math.floor(Math.random() * (60 - 40 + 1)) + 40  // 40-60 (failure)
+                : Math.floor(Math.random() * (98 - 80 + 1)) + 80; // 80-98 (success)
 
             setScore(mockScore);
 
@@ -139,7 +138,19 @@ export default function PracticePage({ params }: { params: { chapterId: string }
                 }, 1500);
             } else {
                 setFeedback("error");
-                // Logic for retry or rescue mode would go here
+                // Increment attempts for Rescue Mode tracking
+                const newAttempts = attempts + 1;
+                setAttempts(newAttempts);
+
+                if (newAttempts >= 3) {
+                    setTimeout(() => {
+                        setShowRescue(true);
+                        // Pause video when rescue modal opens
+                        videoRef.current?.pause();
+                    }, 1000);
+                } else {
+                    setTimeout(() => setFeedback(null), 1500);
+                }
             }
         }, 1500);
     };
@@ -166,6 +177,7 @@ export default function PracticePage({ params }: { params: { chapterId: string }
             {/* Top Video Section */}
             <div className={styles.videoSection}>
                 <VideoPlayer
+                    ref={videoRef}
                     src={unitData.videoSrc}
                     autoPlay
                     loop

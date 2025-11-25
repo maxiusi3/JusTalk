@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import styles from "./VideoPlayer.module.css";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 
@@ -14,7 +14,12 @@ interface VideoPlayerProps {
     className?: string;
 }
 
-export default function VideoPlayer({
+export interface VideoPlayerRef {
+    pause: () => void;
+    play: () => void;
+}
+
+const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({
     src,
     poster,
     autoPlay = false,
@@ -22,11 +27,27 @@ export default function VideoPlayer({
     muted = false,
     onEnded,
     className
-}: VideoPlayerProps) {
+}, ref) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(autoPlay);
     const [isMuted, setIsMuted] = useState(muted);
     const [progress, setProgress] = useState(0);
+
+    // Expose pause/play methods to parent
+    useImperativeHandle(ref, () => ({
+        pause: () => {
+            if (videoRef.current && !videoRef.current.paused) {
+                videoRef.current.pause();
+                setIsPlaying(false);
+            }
+        },
+        play: () => {
+            if (videoRef.current && videoRef.current.paused) {
+                videoRef.current.play();
+                setIsPlaying(true);
+            }
+        }
+    }));
 
     useEffect(() => {
         if (videoRef.current) {
@@ -95,4 +116,8 @@ export default function VideoPlayer({
             </div>
         </div>
     );
-}
+});
+
+VideoPlayer.displayName = "VideoPlayer";
+
+export default VideoPlayer;

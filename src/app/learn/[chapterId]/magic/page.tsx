@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import VideoPlayer from "@/components/player/VideoPlayer";
-import { Star, ArrowRight, Sparkles } from "lucide-react";
+import { Star, ArrowRight, Sparkles, Play, Pause } from "lucide-react";
 
 export default function MagicMomentPage({ params }: { params: { chapterId: string } }) {
     const router = useRouter();
     const [videoEnded, setVideoEnded] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(true);
+    const [progress, setProgress] = useState(0);
+    const videoRef = useRef<HTMLVideoElement>(null);
 
     // Full chapter video (no subtitles)
     const videoSrc = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
@@ -30,26 +32,78 @@ export default function MagicMomentPage({ params }: { params: { chapterId: strin
         setShowCelebration(true);
     };
 
+    // Helper function to format time for display
+    const formatTime = (seconds: number) => {
+        if (isNaN(seconds)) return "00:00";
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
+
     return (
         <main className={styles.container}>
             {!showCelebration ? (
                 <div className={styles.theaterMode}>
-                    <VideoPlayer
-                        src={videoSrc}
-                        autoPlay
-                        className={styles.player}
-                        onEnded={handleVideoEnd}
-                    />
-                    <div className={styles.controlsOverlay}>
-                        {!videoEnded && (
-                            <div className={styles.theaterHint}>
-                                <Sparkles size={16} className={styles.sparkleIcon} />
-                                Magic Moment: No Subtitles
+                    <div className={styles.theaterHint}>
+                        <Sparkles size={16} className={styles.sparkleIcon} />
+                        Magic Moment: No Subtitles
+                    </div>
+
+                    {/* Video Player with Custom Controls */}
+                    <div className={styles.videoWrapper}>
+                        <video
+                            ref={videoRef}
+                            className={styles.video}
+                            src={videoSrc}
+                            autoPlay
+                            playsInline
+                            onEnded={handleVideoEnd}
+                            onTimeUpdate={() => {
+                                if (videoRef.current) {
+                                    setProgress((videoRef.current.currentTime / videoRef.current.duration) * 100);
+                                }
+                            }}
+                            onPlay={() => setIsPlaying(true)}
+                            onPause={() => setIsPlaying(false)}
+                        />
+
+                        <div className={styles.controlsOverlay}>
+                            <button
+                                className={styles.playPauseButton}
+                                onClick={() => {
+                                    if (videoRef.current) {
+                                        if (videoRef.current.paused) {
+                                            videoRef.current.play();
+                                        } else {
+                                            videoRef.current.pause();
+                                        }
+                                    }
+                                }}
+                            >
+                                {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                            </button>
+
+                            <div className={styles.progressContainer}>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={progress}
+                                    className={styles.progressBar}
+                                    onChange={(e) => {
+                                        const newProgress = parseFloat(e.target.value);
+                                        setProgress(newProgress);
+                                        if (videoRef.current) {
+                                            videoRef.current.currentTime = (newProgress / 100) * videoRef.current.duration;
+                                        }
+                                    }}
+                                />
                             </div>
-                        )}
-                        <button className={styles.skipButton} onClick={handleSkip}>
-                            Skip <ArrowRight size={16} />
-                        </button>
+
+                            <div className={styles.timeDisplay}>
+                                {formatTime(videoRef.current?.currentTime || 0)} / {formatTime(videoRef.current?.duration || 0)}
+                            </div>
+                        </div>
                     </div>
                 </div>
             ) : (

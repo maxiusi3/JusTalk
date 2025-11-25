@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import styles from "./ChatInterface.module.css";
-import { Mic, Send, User, Bot, Volume2, AlertCircle } from "lucide-react";
+import { Mic, Send, User, Bot, Volume2, AlertCircle, Keyboard } from "lucide-react";
 
 interface Message {
     id: string;
@@ -21,7 +21,10 @@ export default function ChatInterface({ initialMessages = [], onSendMessage, isT
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [inputValue, setInputValue] = useState("");
     const [showToast, setShowToast] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [showKeyboard, setShowKeyboard] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const recordingStartTime = useRef<number>(0);
 
     useEffect(() => {
         setMessages(initialMessages);
@@ -41,6 +44,7 @@ export default function ChatInterface({ initialMessages = [], onSendMessage, isT
             }
             onSendMessage(inputValue);
             setInputValue("");
+            setShowKeyboard(false);
         }
     };
 
@@ -48,6 +52,26 @@ export default function ChatInterface({ initialMessages = [], onSendMessage, isT
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleSend();
+        }
+    };
+
+    const handleMicPress = () => {
+        setIsRecording(true);
+        recordingStartTime.current = Date.now();
+        // TODO: Start actual audio recording
+    };
+
+    const handleMicRelease = () => {
+        setIsRecording(false);
+        const duration = Date.now() - recordingStartTime.current;
+
+        // Mock: Simulate voice-to-text
+        if (duration > 500) {
+            const mockText = "Yes, a table in the corner please.";
+            onSendMessage(mockText);
+        } else {
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 3000);
         }
     };
 
@@ -98,22 +122,48 @@ export default function ChatInterface({ initialMessages = [], onSendMessage, isT
                         </button>
                     ))}
                 </div>
-                <div className={styles.inputWrapper}>
-                    <input
-                        type="text"
-                        className={styles.input}
-                        placeholder="Type a message..."
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                    />
-                    <button className={styles.sendButton} onClick={handleSend} disabled={!inputValue.trim()}>
-                        <Send size={20} />
+
+                {/* Primary Voice Input */}
+                <div className={styles.voiceInputWrapper}>
+                    <button
+                        className={`${styles.micButton} ${isRecording ? styles.recording : ''}`}
+                        onMouseDown={handleMicPress}
+                        onMouseUp={handleMicRelease}
+                        onTouchStart={handleMicPress}
+                        onTouchEnd={handleMicRelease}
+                    >
+                        <Mic size={32} />
+                        {isRecording && <div className={styles.recordingPulse} />}
                     </button>
+                    <p className={styles.micHint}>
+                        {isRecording ? "🔴 Recording..." : "Hold to speak"}
+                    </p>
                 </div>
-                <button className={styles.micButton}>
-                    <Mic size={24} />
+
+                {/* Auxiliary Keyboard Input */}
+                <button
+                    className={styles.keyboardToggle}
+                    onClick={() => setShowKeyboard(!showKeyboard)}
+                >
+                    <Keyboard size={16} />
+                    <span>{showKeyboard ? "Hide" : "Type"}</span>
                 </button>
+
+                {showKeyboard && (
+                    <div className={styles.inputWrapper}>
+                        <input
+                            type="text"
+                            className={styles.input}
+                            placeholder="Type a message..."
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                        <button className={styles.sendButton} onClick={handleSend} disabled={!inputValue.trim()}>
+                            <Send size={20} />
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
