@@ -68,7 +68,10 @@ export default function ChatInterface({ initialMessages = [], onSendMessage, isT
         // Mock: Simulate voice-to-text
         if (duration > 500) {
             const mockText = "Yes, a table in the corner please.";
-            onSendMessage(mockText);
+            // Fill input with recognized text instead of auto-sending
+            setInputValue(mockText);
+            // Auto-expand keyboard for user to review/edit
+            setShowKeyboard(true);
         } else {
             setShowToast(true);
             setTimeout(() => setShowToast(false), 3000);
