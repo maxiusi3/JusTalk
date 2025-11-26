@@ -1,4 +1,4 @@
--- Clear existing data (optional, or just upsert)
+-- Clear existing data
 TRUNCATE TABLE user_progress, chat_scenarios, options, units, chapters CASCADE;
 
 -- 1. Insert Chapters (Real ESL Content)
@@ -12,11 +12,12 @@ ON CONFLICT (id) DO UPDATE SET
   description = EXCLUDED.description;
 
 -- 2. Insert Units (One per chapter for MVP)
+-- Using Google Storage samples as reliable high-quality placeholders
 INSERT INTO units (id, chapter_id, video_src, correct_text)
 VALUES
-  ('u1', '1', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'I would like an oat milk latte with an extra shot, please.'),
-  ('u2', '2', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', 'Has anyone seen a blue iPhone? I think I left it here.'),
-  ('u3', '3', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', 'I have five years of experience in digital marketing and project management.')
+  ('u1', '1', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', 'I would like an oat milk latte with an extra shot, please.'),
+  ('u2', '2', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', 'Has anyone seen a blue iPhone? I think I left it here.'),
+  ('u3', '3', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'I have five years of experience in digital marketing and project management.')
 ON CONFLICT (id) DO NOTHING;
 
 -- 3. Insert Options (For Guessing Game)
@@ -68,3 +69,4 @@ VALUES
 ON CONFLICT (id) DO UPDATE SET
   role_name = EXCLUDED.role_name,
   initial_message = EXCLUDED.initial_message;
+

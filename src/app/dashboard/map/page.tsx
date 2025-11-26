@@ -34,10 +34,9 @@ function MapContent() {
                 console.error('Error fetching chapters:', error);
                 // Fallback to mock data if DB connection fails (e.g. missing env vars)
                 setChapters([
-                    { id: "1", title: "Cafe Encounter", status: "unlocked", stars: 0, position_x: 50, position_y: 80 },
-                    { id: "2", title: "The Lost Key", status: "locked", stars: 0, position_x: 30, position_y: 60 },
-                    { id: "3", title: "Subway Talk", status: "locked", stars: 0, position_x: 70, position_y: 40 },
-                    { id: "4", title: "Dinner Date", status: "locked", stars: 0, position_x: 50, position_y: 20 },
+                    { id: "1", title: "The Coffee Shop Meet-Cute", status: "unlocked", stars: 0, position_x: 50, position_y: 80 },
+                    { id: "2", title: "The Lost Phone", status: "locked", stars: 0, position_x: 30, position_y: 60 },
+                    { id: "3", title: "The Job Interview", status: "locked", stars: 0, position_x: 70, position_y: 40 },
                 ]);
             } else if (data) {
                 // Filter out any chapters with missing IDs and ensure correct typing
