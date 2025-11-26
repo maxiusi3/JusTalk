@@ -70,10 +70,31 @@ function MapContent() {
                 ch.id === '2' ? { ...ch, status: 'unlocked' } : ch
             ));
 
+            // Persist to Supabase (MVP: Updating chapters table directly)
+            // In a real multi-user app, this should update user_progress table
+            const persistProgress = async () => {
+                try {
+                    // Update Chapter 1
+                    await supabase
+                        .from('chapters')
+                        .update({ status: 'completed', stars: 2 })
+                        .eq('id', '1');
+
+                    // Unlock Chapter 2
+                    await supabase
+                        .from('chapters')
+                        .update({ status: 'unlocked' })
+                        .eq('id', '2');
+                } catch (err) {
+                    console.error("Failed to persist progress:", err);
+                }
+            };
+            persistProgress();
+
             // Clean up URL
             router.replace('/dashboard/map');
         }
-    }, [searchParams, router]);
+    }, [searchParams, router, supabase]);
 
     const handleChapterClick = (chapterId: string) => {
         if (!chapterId || chapterId === 'undefined') {
