@@ -40,7 +40,16 @@ function MapContent() {
                     { id: "4", title: "Dinner Date", status: "locked", stars: 0, position_x: 50, position_y: 20 },
                 ]);
             } else if (data) {
-                setChapters(data as Chapter[]);
+                // Filter out any chapters with missing IDs and ensure correct typing
+                const validChapters = (data as any[]).filter(ch => ch.id).map(ch => ({
+                    id: String(ch.id),
+                    title: ch.title,
+                    status: ch.status,
+                    stars: ch.stars,
+                    position_x: ch.position_x,
+                    position_y: ch.position_y
+                })) as Chapter[];
+                setChapters(validChapters);
             }
             setLoading(false);
         }
@@ -67,6 +76,10 @@ function MapContent() {
     }, [searchParams, router]);
 
     const handleChapterClick = (chapterId: string) => {
+        if (!chapterId || chapterId === 'undefined') {
+            console.error("Invalid chapter ID:", chapterId);
+            return;
+        }
         router.push(`/learn/${chapterId}/trailer`);
     };
 

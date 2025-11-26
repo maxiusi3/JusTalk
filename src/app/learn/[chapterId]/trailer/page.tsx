@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import styles from "./page.module.css";
 import VideoPlayer from "@/components/player/VideoPlayer";
 import { ArrowRight } from "lucide-react";
@@ -11,6 +12,12 @@ export default function TrailerPage({ params }: { params: { chapterId: string } 
     // In a real app, fetch chapter data based on params.chapterId
     const chapterTitle = "Cafe Encounter";
     const trailerSrc = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"; // Placeholder
+
+    useEffect(() => {
+        if (!params.chapterId || params.chapterId === 'undefined') {
+            router.replace('/dashboard/map');
+        }
+    }, [params.chapterId, router]);
 
     const handleStartLearning = () => {
         router.push(`/learn/${params.chapterId}/practice`);
