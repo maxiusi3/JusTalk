@@ -82,19 +82,35 @@ export default function ChatPage({ params }: { params: { chapterId: string } }) 
         // Simulate AI response
         setIsTyping(true);
         setTimeout(() => {
+            // V1.1: Fuzzy Matching Logic
+            // Check if user used any key words: "table", "corner", "please"
+            const lowerContent = content.toLowerCase();
+            const hasKeywords = lowerContent.includes("table") || lowerContent.includes("corner");
+
+            let aiContent = "Great! Please leave it on my table.";
+            let isSuccess = true;
+
+            if (!hasKeywords) {
+                aiContent = "I didn't quite catch that. Could you mention where you left it? (Try using 'table')";
+                isSuccess = false;
+            }
+
             const aiResponse: Message = {
                 id: (Date.now() + 1).toString(),
                 role: "ai",
-                content: "Great! Please leave it on my table.",
+                content: aiContent,
                 timestamp: Date.now(),
             };
             setMessages((prev) => [...prev, aiResponse]);
             setIsTyping(false);
 
-            // End conversation after one turn for MVP
-            setTimeout(() => {
-                router.push("/dashboard/map?completed=true");
-            }, 2000);
+            // End conversation if success
+            if (isSuccess) {
+                setTimeout(() => {
+                    // Redirect to Settlement Page
+                    router.push(`/learn/${params.chapterId}/settlement`);
+                }, 2000);
+            }
         }, 1500);
     };
 

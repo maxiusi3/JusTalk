@@ -79,8 +79,13 @@ export default function ChatInterface({ initialMessages = [], onSendMessage, isT
     };
 
     const playHint = (text: string) => {
-        // Mock TTS
-        alert(`Playing audio for: ${text}`);
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert(`Playing audio for: ${text}`);
+        }
     };
 
     return (

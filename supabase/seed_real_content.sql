@@ -12,13 +12,19 @@ ON CONFLICT (id) DO UPDATE SET
   description = EXCLUDED.description;
 
 -- 2. Insert Units (One per chapter for MVP)
--- Using Google Storage samples as reliable high-quality placeholders
+-- Using Supabase Storage URLs (Requires user to upload files as per CONTENT_SOURCING.md)
+-- Replace [PROJECT_REF] with your actual project reference if not using a relative path or if needed.
+-- For local dev, we might need the full URL. Assuming standard Supabase URL pattern.
+-- NOTE: User must replace 'mdaxeupyylagqtjnalyx' with their actual Supabase Project ID in the URLs below,
+-- OR use a relative path if the app supports it (but usually video src needs full URL).
 INSERT INTO units (id, chapter_id, video_src, correct_text)
 VALUES
-  ('u1', '1', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', 'I would like an oat milk latte with an extra shot, please.'),
-  ('u2', '2', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', 'Has anyone seen a blue iPhone? I think I left it here.'),
-  ('u3', '3', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'I have five years of experience in digital marketing and project management.')
-ON CONFLICT (id) DO NOTHING;
+  ('u1', '1', 'https://mdaxeupyylagqtjnalyx.supabase.co/storage/v1/object/public/content/drama/chapter_1_coffee.mp4', 'I would like an oat milk latte with an extra shot, please.'),
+  ('u2', '2', 'https://mdaxeupyylagqtjnalyx.supabase.co/storage/v1/object/public/content/drama/chapter_2_lost_phone.mp4', 'Has anyone seen a blue iPhone? I think I left it here.'),
+  ('u3', '3', 'https://mdaxeupyylagqtjnalyx.supabase.co/storage/v1/object/public/content/drama/chapter_3_interview.mp4', 'I have five years of experience in digital marketing and project management.')
+ON CONFLICT (id) DO UPDATE SET
+  video_src = EXCLUDED.video_src,
+  correct_text = EXCLUDED.correct_text;
 
 -- 3. Insert Options (For Guessing Game)
 -- Chapter 1: Coffee Shop

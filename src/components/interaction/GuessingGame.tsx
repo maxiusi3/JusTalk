@@ -38,6 +38,11 @@ export default function GuessingGame({ options, onSelect, isFocusMode = false }:
                     </button>
                 ))}
             </div>
+            {isFocusMode && (
+                <div className={styles.focusOverlay}>
+                    <p>Don't worry, let's slow down.</p>
+                </div>
+            )}
         </div>
     );
 }

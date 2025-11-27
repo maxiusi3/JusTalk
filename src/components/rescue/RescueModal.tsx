@@ -2,6 +2,8 @@
 
 import styles from "./RescueModal.module.css";
 import { X, Play, Volume2, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import VideoPlayer from "@/components/player/VideoPlayer";
 
 interface RescueModalProps {
     isOpen: boolean;
@@ -10,8 +12,15 @@ interface RescueModalProps {
     coachMessage: string;
 }
 
-export default function RescueModal({ isOpen, onClose, onWatchClip, coachMessage }: RescueModalProps) {
+export default function RescueModal({ isOpen, onClose, onWatchClip, coachMessage, videoSrc }: RescueModalProps & { videoSrc?: string }) {
+    const [isPlaying, setIsPlaying] = useState(false);
+
     if (!isOpen) return null;
+
+    const handlePlay = () => {
+        setIsPlaying(true);
+        onWatchClip();
+    };
 
     return (
         <div className={styles.overlay} onClick={onClose}>
@@ -42,14 +51,23 @@ export default function RescueModal({ isOpen, onClose, onWatchClip, coachMessage
                         </button>
                     </div>
 
-                    {/* Clip Player Placeholder */}
-                    <div className={styles.clipPlayer} onClick={onWatchClip}>
-                        <div className={styles.playOverlay}>
-                            <Play size={32} fill="currentColor" />
-                            <span>Watch Example Clip</span>
-                        </div>
-                        {/* Placeholder for video thumbnail */}
-                        <div className={styles.thumbnail} />
+                    {/* Clip Player */}
+                    <div className={styles.clipPlayer} onClick={!isPlaying ? handlePlay : undefined}>
+                        {isPlaying && videoSrc ? (
+                            <VideoPlayer
+                                src={videoSrc}
+                                autoPlay
+                                className={styles.video}
+                            />
+                        ) : (
+                            <>
+                                <div className={styles.playOverlay}>
+                                    <Play size={32} fill="currentColor" />
+                                    <span>Watch Example Clip</span>
+                                </div>
+                                <div className={styles.thumbnail} />
+                            </>
+                        )}
                     </div>
 
                     <button className={styles.retryButton} onClick={onClose}>

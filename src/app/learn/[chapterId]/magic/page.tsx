@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, use } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import { Star, ArrowRight, Sparkles, Play, Pause } from "lucide-react";
 
-export default function MagicMomentPage({ params }: { params: { chapterId: string } }) {
+export default function MagicMomentPage({ params }: { params: Promise<{ chapterId: string }> }) {
     const router = useRouter();
+    const { chapterId } = use(params);
     const [videoEnded, setVideoEnded] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
     const [isPlaying, setIsPlaying] = useState(true);
